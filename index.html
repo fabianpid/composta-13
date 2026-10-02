@@ -231,36 +231,12 @@ if (!$resultado) {
             </div>
         </section>
 
-        <!-- SECCIÓN DE FORMULARIO AGREGADA -->
         <section id="contacto" class="seccion">
-            <h2>¿Tienes Dudas o Quieres Enviar tu Experiencia?</h2>
-            <p>Llena este formulario si necesitas asesoría específica sobre el proceso de tu composta casera:</p>
-
-            <form id="formComposta" class="form-consulta">
+            <h2>Envianos tu experiencia</h2>
+            <p>Llena este formulario</p>
                 <div class="campo-form">
-                    <label for="nombre">Nombre completo:</label>
-                    <input type="text" id="nombre" placeholder="Ej. Juan Pérez" required>
-                </div>
-
-                <div class="campo-form">
-                    <label for="email">Correo electrónico:</label>
-                    <input type="email" id="email" placeholder="ejemplo@correo.com" required>
-                </div>
-
-                <div class="campo-form">
-                    <label for="tipoContenedor">Tipo de contenedor que utilizas:</label>
-                    <select id="tipoContenedor" required>
-                        <option value="">-- Selecciona una opción --</option>
-                        <option value="Huacal de madera">Huacal de madera</option>
-                        <option value="Cubeta o bote de plástico">Cubeta o bote de plástico</option>
-                        <option value="Directo en tierra / Jardín">Directo en tierra / Jardín</option>
-                        <option value="Vermicompostero (Lombrices)">Vermicompostero (Lombrices)</option>
-                    </select>
-                </div>
-
-                <div class="campo-form">
-                    <label for="comentario">Describe tu consulta o comentario:</label>
-                    <textarea id="comentario" rows="4" placeholder="Escribe aquí tus preguntas..." required></textarea>
+                    <label for="comentario">Describe tu comentario:</label>
+                    <textarea id="comentario" rows="4" placeholder="Escribe aquí tu comentario" required></textarea>
                 </div>
 
                 <button type="submit" class="btn-enviar">Enviar Consulta</button>
@@ -269,8 +245,8 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 if(isset($_POST['enviar'])){
     // 1. Recibimos datos
-    $opinion = $_POST['opinion'];
-    $sql = "INSERT INTO parecio (opinion) VALUES ('$opinion')";
+    $opinion = $_POST['comentario'];
+    $sql = "INSERT INTO parecio (comentario) VALUES ('$comentario')";
     $query = mysqli_query($conexion, $sql);
 
     if($query){
