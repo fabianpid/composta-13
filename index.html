@@ -243,9 +243,9 @@ if (!$resultado) {
                 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-if(isset($_POST['enviar'])){
+if(isset($_POST['btn-enviar'])){
     // 1. Recibimos datos
-    $opinion = $_POST['comentario'];
+    $comentario = $_POST['comentario'];
     $sql = "INSERT INTO parecio (comentario) VALUES ('$comentario')";
     $query = mysqli_query($conexion, $sql);
 
