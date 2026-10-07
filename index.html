@@ -239,14 +239,14 @@ if (!$resultado) {
                     <textarea id="comentario" rows="4" placeholder="Escribe aquí tu comentario" required></textarea>
                 </div>
 
-                <button type="submit" class="btn-enviar">Enviar Consulta</button>
+                <button type="enviar" class="btn-enviar">Enviar Consulta</button>
                 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-if(isset($_POST['btn-enviar'])){
+if(isset($_POST['enviar'])){
     // 1. Recibimos datos
     $comentario = $_POST['comentario'];
-    $sql = "INSERT INTO parecio (comentario) VALUES ('$comentario')";
+    $sql = "INSERT INTO parecio (comentario) VALUES ($comentario)";
     $query = mysqli_query($conexion, $sql);
 
     if($query){
