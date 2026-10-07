@@ -1,5 +1,4 @@
 <?php
-// Configuración de conexión con Railway / Localhost
 $host = getenv('MYSQLHOST') ?: "localhost";
 $port = getenv('MYSQLPORT') ?: "3306";
 $user = getenv('MYSQLUSER') ?: "root";
@@ -12,29 +11,9 @@ if (!$conexion) {
     die("Error de conexión: " . mysqli_connect_error());
 }
 
-// Asegurar soporte para acentos y caracteres especiales
 mysqli_set_charset($conexion, "utf8mb4");
 
-// Lógica de procesamiento del formulario
-$mensajePHP = "";
-if (isset($_POST['enviar'])) {
-    // Sanitizar y limpiar el texto ingresado para evitar errores de SQL e inyecciones
-    $comentario = mysqli_real_escape_string($conexion, trim($_POST['comentario']));
-    
-    if (!empty($comentario)) {
-        // CORRECCIÓN CLAVE: El texto en SQL debe ir entre comillas '$comentario'
-        $sql = "INSERT INTO parecio (comentario) VALUES ('$comentario')";
-        $query = mysqli_query($conexion, $sql);
 
-        if ($query) {
-            $mensajePHP = "<div class='mensaje-confirmacion' style='display:block;'>¡Muchas gracias! Tu opinión ha sido enviada con éxito y nos ayuda a mejorar 🌱.</div>";
-        } else {
-            $mensajePHP = "<div class='caja-alerta'>Error al guardar en la base de datos: " . mysqli_error($conexion) . "</div>";
-        }
-    } else {
-        $mensajePHP = "<div class='caja-alerta'>Por favor, escribe un comentario antes de enviar.</div>";
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -186,10 +165,28 @@ if (isset($_POST['enviar'])) {
                 </div>
 
                 <button type="submit" name="enviar" class="btn-enviar">Enviar Opinión</button>
+                <?php
+if (isset($_POST['enviar'])) {
+    // Sanitizar y limpiar el texto ingresado para evitar errores de SQL e inyecciones
+    $comentario = mysqli_real_escape_string($conexion, trim($_POST['comentario']));
+    
+    if (!empty($comentario)) {
+        // CORRECCIÓN CLAVE: El texto en SQL debe ir entre comillas '$comentario'
+        $sql = "INSERT INTO parecio (comentario) VALUES ('$comentario')";
+        $query = mysqli_query($conexion, $sql);
+
+        if ($query) {
+            $mensajePHP = "<div class='mensaje-confirmacion' style='display:block;'>¡Muchas gracias! Tu opinión ha sido enviada con éxito y nos ayuda a mejorar 🌱.</div>";
+        } else {
+            $mensajePHP = "<div class='caja-alerta'>Error al guardar en la base de datos: " . mysqli_error($conexion) . "</div>";
+        }
+    } else {
+        $mensajePHP = "<div class='caja-alerta'>Por favor, escribe un comentario antes de enviar.</div>";
+    }
+}
+    ?>
             </form>
 
-            <!-- Mensaje de respuesta desplegado desde PHP -->
-            <?php echo $mensajePHP; ?>
         </section>
 
     </main>
