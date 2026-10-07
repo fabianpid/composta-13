@@ -1,5 +1,5 @@
 <?php
-
+// Configuración de conexión con Railway / Localhost
 $host = getenv('MYSQLHOST') ?: "localhost";
 $port = getenv('MYSQLPORT') ?: "3306";
 $user = getenv('MYSQLUSER') ?: "root";
@@ -12,21 +12,30 @@ if (!$conexion) {
     die("Error de conexión: " . mysqli_connect_error());
 }
 
-// Esto es vital para los acentos
-mysqli_set_charset($conexion, "utf8");
-?>
-<?php
-// 2. Consulta para obtener los programas de la tabla
-$query = "SELECT * FROM programas";
-$resultado = mysqli_query($conexion, $query); 
+// Asegurar soporte para acentos y caracteres especiales
+mysqli_set_charset($conexion, "utf8mb4");
 
-// Verificación de seguridad
-if (!$resultado) {
-    die("Error en la consulta: " . mysqli_error($conexion));
+// Lógica de procesamiento del formulario
+$mensajePHP = "";
+if (isset($_POST['enviar'])) {
+    // Sanitizar y limpiar el texto ingresado para evitar errores de SQL e inyecciones
+    $comentario = mysqli_real_escape_string($conexion, trim($_POST['comentario']));
+    
+    if (!empty($comentario)) {
+        // CORRECCIÓN CLAVE: El texto en SQL debe ir entre comillas '$comentario'
+        $sql = "INSERT INTO parecio (comentario) VALUES ('$comentario')";
+        $query = mysqli_query($conexion, $sql);
+
+        if ($query) {
+            $mensajePHP = "<div class='mensaje-confirmacion' style='display:block;'>¡Muchas gracias! Tu opinión ha sido enviada con éxito y nos ayuda a mejorar 🌱.</div>";
+        } else {
+            $mensajePHP = "<div class='caja-alerta'>Error al guardar en la base de datos: " . mysqli_error($conexion) . "</div>";
+        }
+    } else {
+        $mensajePHP = "<div class='caja-alerta'>Por favor, escribe un comentario antes de enviar.</div>";
+    }
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -34,72 +43,6 @@ if (!$resultado) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guía Completa sobre la Composta Casera</title>
     <link rel="stylesheet" href="estilos.css">
-    <style>
-        /* Estilos directos para el formulario agregado */
-        .form-consulta {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 600px;
-            margin: 20px auto 0 auto;
-        }
-
-        .campo-form {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-
-        .campo-form label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #2e7d32;
-        }
-
-        .campo-form input,
-        .campo-form select,
-        .campo-form textarea {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-
-        .campo-form input:focus,
-        .campo-form select:focus,
-        .campo-form textarea:focus {
-            outline: none;
-            border-color: #2e7d32;
-            box-shadow: 0 0 5px rgba(46, 125, 50, 0.3);
-        }
-
-        .btn-enviar {
-            background-color: #2e7d32;
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-enviar:hover {
-            background-color: #1b5e20;
-        }
-
-        .mensaje-confirmacion {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 6px;
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: none;
-        }
-    </style>
 </head>
 <body>
 
@@ -231,35 +174,22 @@ if (!$resultado) {
             </div>
         </section>
 
+        <!-- SECCIÓN DE CONTACTO Y FORMULARIO CORREGIDA -->
         <section id="contacto" class="seccion">
-            <h2>Envianos tu experiencia</h2>
-            <p>Llena este formulario</p>
+            <h2>Envíanos tu experiencia o sugerencia</h2>
+            <p>¿Qué te pareció la información sobre la composta casera? Déjanos un comentario corto para saber tu opinión:</p>
+            
+            <form action="" method="POST" class="form-consulta">
                 <div class="campo-form">
-                    <label for="comentario">Describe tu comentario:</label>
-                    <textarea id="comentario" rows="4" placeholder="Escribe aquí tu comentario" required></textarea>
+                    <label for="comentario">Tu comentario o duda:</label>
+                    <textarea id="comentario" name="comentario" rows="4" placeholder="Ej. Me sirvió mucho la tabla de materiales permitidos..." required></textarea>
                 </div>
 
-                <button type="enviar" class="btn-enviar">Enviar Consulta</button>
-                <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-if(isset($_POST['enviar'])){
-    // 1. Recibimos datos
-    $comentario = $_POST['comentario'];
-    $sql = "INSERT INTO parecio (comentario) VALUES ($comentario)";
-    $query = mysqli_query($conexion, $sql);
-
-    if($query){
-        echo "¡Muchas gracias tu opinion nos ayuda a mejorar!.";
-    } else {
-        // ESTA LÍNEA ES CLAVE: Te dirá qué tiene de malo tu base de datos
-        echo "Error de SQL: " . mysqli_error($conexion);
-    }
-} 
-?>
+                <button type="submit" name="enviar" class="btn-enviar">Enviar Opinión</button>
             </form>
 
-            <div id="mensajeConfirmacion" class="mensaje-confirmacion"></div>
+            <!-- Mensaje de respuesta desplegado desde PHP -->
+            <?php echo $mensajePHP; ?>
         </section>
 
     </main>
@@ -316,21 +246,6 @@ if(isset($_POST['enviar'])){
 
             tituloPrincipal.addEventListener('mouseleave', function() {
                 tituloPrincipal.style.color = "#ffffff";
-            });
-
-            // Lógica para el formulario de contacto agregado
-            const formComposta = document.getElementById('formComposta');
-            const mensajeConfirmacion = document.getElementById('mensajeConfirmacion');
-
-            formComposta.addEventListener('submit', function(event) {
-                event.preventDefault(); // Evita recargar la página
-
-                const nombre = document.getElementById('nombre').value;
-                
-                mensajeConfirmacion.textContent = `¡Gracias, ${nombre}! Tu consulta ha sido enviada con éxito. Te responderemos pronto.`;
-                mensajeConfirmacion.style.display = 'block';
-
-                formComposta.reset(); // Limpia los campos del formulario
             });
 
         });
